@@ -21,7 +21,8 @@ class Workout {
     // prettier-ignore
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     // prettier-ignore
-    this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${this.date.getMonth()} ${this.date.getDate()}`;
+    // this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${this.date.getMonth()} ${this.date.getDate()}`;
+    this.description = `${this.type} on ${this.date.getMonth()} ${this.date.getDate()}`;
   }
 }
 
@@ -42,9 +43,9 @@ class Running extends Workout {
 }
 class Cycling extends Workout {
   type = 'cycling';
-  constructor(coords, distance, duration, elevationGain) {
+  constructor(coords, distance, duration, elevation) {
     super(coords, distance, duration);
-    this.elevationGain = elevationGain;
+    this.elevation = elevation;
     this.calcSpeed();
     this._setDescription();
   }
@@ -214,6 +215,7 @@ class App {
 
     if (workout.type === 'running')
       html += `
+
     <div class="workout__details">
     <span class="workout__icon">⚡️</span>
     <span class="workout__value">${workout.pace.toFixed(1)}</span>
