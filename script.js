@@ -26,7 +26,7 @@ class Workout {
   }
 
   click() {
-    this.click++;
+    this.clicks++;
   }
 }
 
@@ -60,9 +60,9 @@ class Cycling extends Workout {
     return this.speed;
   }
 }
-const run1 = new Running([39, -12], 5.2, 24, 178);
-const cycling1 = new Cycling([39, -12], 27, 95, 523);
-console.log(run1, cycling1);
+// const run1 = new Running([39, -12], 5.2, 24, 178);
+// const cycling1 = new Cycling([39, -12], 27, 95, 523);
+// console.log(run1, cycling1);
 
 /********************************************************************/
 // Application Architecture
@@ -72,8 +72,13 @@ class App {
   #mapEvent;
   #workouts = [];
   constructor() {
+    //Get users position
     this._getPosistion();
-    //Events listners
+
+    // Get data from local storage:
+    this._getlocalStorage();
+
+    //Events handlers
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
@@ -103,6 +108,10 @@ class App {
     }).addTo(this.#map);
     //Handling clicks on Maps
     this.#map.on('click', this._showForm.bind(this));
+
+    this.#workouts.forEach(work => {
+      this._renderWorkoutMarker(work);
+    });
   }
 
   _showForm(mapE) {
@@ -181,6 +190,9 @@ class App {
       inputCadence.value =
       inputElevation.value =
         '';
+
+    // Set local storage to all workouts :
+    this._setLocalStorage();
   }
 
   _renderWorkoutMarker(workout) {
@@ -195,7 +207,7 @@ class App {
           className: `${workout.type}-popup`,
         })
       )
-      .setPopupContent(workout.distance)
+      .setPopupContent(workout.description)
       .openPopup();
   }
 
@@ -253,20 +265,37 @@ class App {
 
   _moveToPopup(e) {
     const workoutEl = e.target.closest('.workout');
-    console.log(workoutEl);
 
     if (!workoutEl) return;
 
     const workout = this.#workouts.find(
       work => work.id === workoutEl.dataset.id
     );
-    console.log(workout);
 
     this.#map.setView(workout.coords, this.#mapZoomevel, {
       animate: true,
       pan: {
         duration: 1,
       },
+    });
+
+    // Using the public interface
+    // workout.click();
+  }
+
+  _setLocalStorage() {
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+
+  _getlocalStorage() {
+    const data = JSON.parse(localStorage.getItem('workouts'));
+
+    if (!data) return;
+
+    this.#workouts = data;
+
+    this.#workouts.forEach(work => {
+      this._renderWorkout(work);
     });
   }
 }
